@@ -5,7 +5,6 @@ jobs:
       - image: circleci/golang:1.13-buster-node
         environment:
           GO111MODULE: "on"
-
     working_directory: /go/src/github.com/ryokky59/ecs-sample-server
     steps:
       - checkout
@@ -24,3 +23,40 @@ jobs:
       - run:
           name: Run tests
           command: go test ./...
+
+  build_image:
+    docker:
+      - image: docker:latest
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: install aws cli
+          command: |
+            apk add --no-cache --update py-pip
+            pip install awscli
+      - run:
+          name: login ecr
+          command: |
+            $(aws ecr get-login --no-include-email --region ap-northeast-1)
+      - run:
+          name: build image
+          command: |
+            docker build -t ${ECR_DOMAIN}:$CIRCLE_SHA1 -t ${ECR_DOMAIN}:latest .
+      - run:
+          name: Push docker image
+          command: |
+            docker push ${ECR_DOMAIN}:$CIRCLE_SHA1
+            docker push ${ECR_DOMAIN}:latest
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - build
+      - build_image:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
