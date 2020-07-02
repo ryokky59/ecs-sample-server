@@ -7,10 +7,10 @@ import (
 // InitRouting routesの初期化
 func InitRouting(e *echo.Echo, taskHandler TaskHandler) {
 
-	e.POST("/task", taskHandler.Post())
-	e.GET("/tasks", taskHandler.GetAll())
-	e.GET("/task/:id", taskHandler.Get())
-	e.PUT("/task/:id", taskHandler.Put())
-	e.DELETE("/task/:id", taskHandler.Delete())
+	e.POST("/api/task", taskHandler.Post())
+	e.GET("/api/tasks", taskHandler.GetAll())
+	e.GET("/api/task/:id", taskHandler.Get())
+	e.PUT("/api/task/:id", taskHandler.Put())
+	e.DELETE("/api/task/:id", taskHandler.Delete())
 
 }
